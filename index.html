@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FounderNest MVP</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&amp;family=Manrope:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Layout: one phone-width column on a soft white ground. Pastel fills, hairline borders, lavender for the main action; mint marks a skill match. */
+  --bg:#FBF9FF;
+  --surface:#FFFFFF;
+  --raised:#F4F1FA;
+  --text:#2A2540;
+  --muted:#625B7C;
+  --line:rgba(42,37,64,.12);
+  --accent:#C9BEFF;
+  --on-accent:#2A2540;
+  --accent-ink:#5B4BC4;
+  --mint:#C8F1E0;
+  --mint-ink:#1F6B55;
+  --lav:#E9E4FF;
+  --blush:#FFE3EC;
+  --peach:#FFE9D6;
+  --sky:#DDEFFF;
+  --sage:#DDF6EA;
+  --display:'Sora','Trebuchet MS',system-ui,sans-serif;
+  --body:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:#F1ECFB;color:var(--text);font-family:var(--body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent-ink);outline-offset:2px}
+h1,h2,h3,p{margin:0}
+h1,h2,h3{font-family:var(--display);line-height:1.1;letter-spacing:-0.025em;text-wrap:balance}
+
+#app{height:100%;max-width:460px;margin:0 auto;background:var(--bg);display:flex;flex-direction:column;position:relative;overflow:hidden}
+@media (min-width:500px){#app{box-shadow:0 0 0 1px var(--line),0 24px 60px rgba(91,75,196,.14)}}
+
+.scroll{flex:1;min-height:0;overflow-y:auto;padding:20px 20px 28px;display:flex;flex-direction:column;gap:20px}
+.stack{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 20px;border:1px solid var(--line);border-radius:14px;background:var(--surface);font-weight:700;transition:transform .08s,border-color .15s}
+.btn:hover{border-color:rgba(42,37,64,.3)}
+.btn:active{transform:scale(.98)}
+.btn[disabled]{opacity:.45;cursor:default}
+.btn.lime,.btn.pink,.btn.violet{background:var(--accent);border-color:transparent;color:var(--on-accent)}
+.btn.sun,.btn.aqua{background:var(--lav);border-color:transparent;color:var(--accent-ink)}
+.btn.wide{width:100%}
+.btn.slim{min-height:44px;padding:0 14px;border-radius:12px;font-size:15px}
+.iconbtn{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;padding:0 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-weight:500;font-size:15px}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent-ink);color:var(--on-accent);font-weight:700}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.75);font-size:13px;font-weight:600;line-height:1.4}
+.tag.hit{background:var(--mint);border-color:transparent;color:var(--mint-ink)}
+.tag.demo{border-style:dashed;font-weight:500;background:transparent;color:var(--muted)}
+
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.label{font-weight:700;font-size:14px;color:var(--muted)}
+.field input,.field select,.field textarea{width:100%;min-height:50px;padding:12px 14px;border:1px solid rgba(42,37,64,.22);border-radius:12px;background:var(--surface)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent-ink);outline:none}
+.field textarea{min-height:88px;resize:vertical}
+
+.panel{padding:18px;border:1px solid var(--line);border-radius:18px;background:var(--surface);display:flex;flex-direction:column;gap:12px}
+.panel.sun,.panel.aqua,.panel.pink,.panel.tangerine{background:var(--lav);border-color:transparent}
+.panel.lime{background:var(--sage);border-color:transparent}
+.panel.ink{background:var(--peach);border-color:transparent}
+.panel.ink .btn.sun{background:var(--surface)}
+
+/* welcome */
+.welcome{flex:1;min-height:0;overflow-y:auto;padding:28px 22px;display:flex;flex-direction:column;gap:22px;background:radial-gradient(420px 300px at 0% 0%,#E4DDFF,transparent 70%),radial-gradient(420px 300px at 100% 14%,#D9EEFF,transparent 70%),var(--bg)}
+.welcome h1{font-size:clamp(40px,11.500vw,52px);font-weight:700}
+.welcome h1 span{color:var(--accent-ink)}
+.welcome p{color:var(--muted)}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:-0.02em}
+.rolebtn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;padding:16px 18px;border:1px solid transparent;border-radius:18px;background:var(--surface);text-align:left;transition:border-color .15s,transform .08s}
+.rolebtn.sun{background:var(--lav)}.rolebtn.aqua{background:var(--sage)}.rolebtn.pink{background:var(--blush)}
+.rolebtn:hover{border-color:var(--accent-ink)}
+.rolebtn:active{transform:scale(.98)}
+.rolebtn b{font-family:var(--display);font-size:21px;font-weight:700;letter-spacing:-0.02em}
+.rolebtn span{color:var(--muted)}
+
+/* app chrome */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--surface)}
+.tabbar{display:flex;border-top:1px solid var(--line);background:var(--surface)}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:60px;padding:8px 4px;border:0;background:transparent;color:var(--muted);font-size:12px;font-weight:700}
+.tab[aria-current="page"]{color:var(--accent-ink);box-shadow:inset 0 2px 0 var(--accent-ink)}
+
+/* deck */
+.deckhead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 20px 0}
+.deck{flex:1;min-height:0;position:relative;margin:14px 20px 0}
+.swipe{--tint:233,228,255;position:absolute;inset:0;padding:22px;border:1px solid rgba(42,37,64,.08);border-radius:24px;background:linear-gradient(180deg,rgb(var(--tint)),rgba(var(--tint),.45) 75%),var(--surface);box-shadow:0 14px 34px rgba(42,37,64,.12);overflow-y:auto;display:flex;flex-direction:column;gap:14px;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:grab;will-change:transform}
+.swipe.behind{transform:scale(.94) translateY(16px);box-shadow:none;opacity:.7}
+.swipe h2{font-size:clamp(28px,8.500vw,36px);font-weight:700}
+.swipe .pitch{font-size:18px;line-height:1.4;color:#3D3757}
+.swipe .who{margin-top:auto;display:flex;align-items:center;gap:10px;padding-top:6px}
+.avatar{flex:none;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border:1px solid var(--line);border-radius:50%;background:var(--surface);font-family:var(--display);font-weight:700;font-size:17px}
+.bg-sun{--tint:233,228,255}.bg-aqua{--tint:221,246,234}.bg-pink{--tint:255,227,236}.bg-lime{--tint:221,239,255}.bg-tangerine{--tint:255,233,214}
+.actions{display:flex;gap:12px;padding:16px 20px 18px}
+.actions .btn{flex:1;min-height:56px;font-size:17px;border-radius:16px}
+.actions .btn.hot{transform:scale(1.05);border-color:var(--accent-ink)}
+.deckempty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:14px;padding:22px;border:1px dashed rgba(42,37,64,.28);border-radius:24px}
+
+/* overlays */
+.scrim{position:absolute;inset:0;background:rgba(42,37,64,.38);display:flex;flex-direction:column;justify-content:flex-end;z-index:5}
+.sheet{max-height:92%;overflow-y:auto;padding:20px 20px 26px;border-radius:24px 24px 0 0;background:var(--bg);box-shadow:0 -10px 40px rgba(42,37,64,.16);display:flex;flex-direction:column;gap:18px}
+.matched{position:absolute;inset:0;z-index:6;background:radial-gradient(520px 360px at 50% 18%,#D6F4E6,transparent 70%),var(--bg);padding:28px 22px;display:flex;flex-direction:column;justify-content:center;gap:18px;overflow-y:auto}
+.matched h2{font-size:clamp(40px,12vw,54px);font-weight:700}
+.bubble{align-self:flex-end;max-width:85%;padding:10px 14px;border-radius:16px 16px 4px 16px;background:var(--accent);color:var(--on-accent);font-weight:500;overflow-wrap:anywhere}
+.feedback{padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--raised);display:flex;flex-direction:column;gap:4px;overflow-wrap:anywhere}
+.empty{padding:22px;border:1px dashed rgba(42,37,64,.28);border-radius:18px}
+
+#toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);width:max-content;max-width:min(400px,calc(100% - 40px));padding:12px 16px;border-radius:12px;background:var(--text);color:#FFFFFF;font-weight:500;box-shadow:0 10px 30px rgba(42,37,64,.25);z-index:9;opacity:0;pointer-events:none;transition:opacity .2s}
+#toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+(function(){
+'use strict';
+
+var SKILLS=['Coding','Mobile dev','Web dev','UI/UX design','Marketing','Finance','Sales','Data analysis','AI/ML','Product','Video/content','Hardware','Operations','Writing'];
+var INTERESTS=['Fintech','Health','Sustainability','Education','Food','Social','AI','Campus life'];
+var COLORS=['sun','aqua','pink','lime','tangerine'];
+
+/* Sample data for the demo. Replace with real posts and profiles. */
+var PROJECTS=[
+ {id:'p1',title:'Lecture Loop',pitch:'Short, student-made recaps of big lectures, searchable by course.',roles:['Mobile dev','UI/UX design','Video/content'],interest:'Education',founder:'Maya',major:'Business Administration',likesBack:true,feedback:[]},
+ {id:'p2',title:'Second Plate',pitch:'Dining halls list surplus meals at closing time and students claim them at a discount.',roles:['Web dev','Operations','Marketing'],interest:'Food',founder:'Jordan',major:'Management',likesBack:false,feedback:[{by:'Prof. Rivera · Entrepreneurship',text:'Start with one dining hall. Count how many meals go unclaimed for two weeks before you build anything.'}]},
+ {id:'p3',title:'RentRight Buffalo',pitch:'Reviews of off-campus apartments and landlords, written by students who lived there.',roles:['Web dev','Data analysis','Marketing'],interest:'Campus life',founder:'Priya',major:'Economics',likesBack:true,feedback:[{by:'Prof. Chen · Computer Science',text:'How will you confirm a reviewer really lived at the address? Solve that first.'}]},
+ {id:'p4',title:'PocketLab',pitch:'Low-cost sensor kits that turn a phone into a lab bench for intro science courses.',roles:['Hardware','Coding','Finance'],interest:'Education',founder:'Ethan',major:'Physics',likesBack:false,feedback:[]},
+ {id:'p5',title:'ShiftSwap',pitch:'Trade campus job shifts in two taps, with manager approval built in.',roles:['Mobile dev','Product','Sales'],interest:'Campus life',founder:'Sofia',major:'Human Resources',likesBack:true,feedback:[]},
+ {id:'p6',title:'GreenRide',pitch:'Carpool matching for commuter students, with a tracker for the carbon you save.',roles:['Mobile dev','Data analysis','UI/UX design'],interest:'Sustainability',founder:'Darius',major:'Environmental Studies',likesBack:false,feedback:[]},
+ {id:'p7',title:'StudyStake',pitch:'Study groups where everyone puts in a small deposit and gets it back for showing up.',roles:['Coding','Finance','Marketing'],interest:'Fintech',founder:'Lena',major:'Finance',likesBack:false,feedback:[{by:'Prof. Rivera · Entrepreneurship',text:'Check the rules on holding student money before you design the deposit flow.'}]},
+ {id:'p8',title:'ClubHub',pitch:'One calendar for every student club event, with RSVP and reminders.',roles:['Web dev','UI/UX design','Writing'],interest:'Social',founder:'Marcus',major:'Communication',likesBack:true,feedback:[]}
+];
+var STUDENTS=[
+ {id:'s1',name:'Alex',major:'Computer Science',bio:'Built two class apps and wants a real product to ship.',skills:['Coding','Mobile dev','AI/ML'],interests:['Fintech','AI'],likesBack:true},
+ {id:'s2',name:'Nina',major:'Media Study',bio:'Designs interfaces and edits video for student clubs.',skills:['UI/UX design','Video/content'],interests:['Social','Education'],likesBack:true},
+ {id:'s3',name:'Sam',major:'Computer Engineering',bio:'Likes building things you can hold. Comfortable with sensors and firmware.',skills:['Hardware','Coding'],interests:['Health','Sustainability'],likesBack:false},
+ {id:'s4',name:'Tara',major:'Marketing',bio:'Ran social accounts for two campus events and wants to grow something from zero.',skills:['Marketing','Writing','Sales'],interests:['Food','Campus life'],likesBack:true},
+ {id:'s5',name:'Leo',major:'Mathematics',bio:'Enjoys messy datasets and building models that explain them.',skills:['Data analysis','AI/ML','Finance'],interests:['Fintech','AI'],likesBack:false},
+ {id:'s6',name:'Chloe',major:'Computer Science',bio:'Full-stack web developer who cares about product decisions.',skills:['Web dev','Coding','Product'],interests:['Education','Campus life'],likesBack:true},
+ {id:'s7',name:'Omar',major:'Finance',bio:'Builds financial models and likes the operations side of a business.',skills:['Finance','Operations','Sales'],interests:['Fintech','Food'],likesBack:false},
+ {id:'s8',name:'Grace',major:'Communication',bio:'Writes, films and edits. Looking for a team with a story worth telling.',skills:['Marketing','Video/content','Writing'],interests:['Social','Sustainability'],likesBack:false}
+];
+
+var KEY='foundernest-mvp-v1';
+function fresh(){return {screen:'welcome',tab:'discover',user:null,myProjects:[],decisions:{},messages:{},feedback:{},filters:{skills:[],interests:[]},waitlist:false};}
+function load(){try{var raw=localStorage.getItem(KEY);return raw?JSON.parse(raw):null;}catch(e){return null;}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+var S=fresh();
+(function(){var saved=load();if(saved&&typeof saved==='object'){for(var k in saved){S[k]=saved[k];}}
+ if(!S.user&&S.screen==='app'){S.screen='welcome';}
+ if(!S.filters||!S.filters.skills){S.filters={skills:[],interests:[]};}})();
+var ui={sheet:null,draft:{},q:''};
+var busy=false;
+var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function svg(d,size){return '<svg width="'+(size||22)+'" height="'+(size||22)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+d+'</svg>';}
+var ICON={
+ deck:'<rect x="6" y="3" width="13" height="16" rx="3"></rect><path d="M3 8v10a3 3 0 0 0 3 3h8"></path>',
+ team:'<circle cx="9" cy="9" r="3.5"></circle><circle cx="17" cy="10" r="2.5"></circle><path d="M2.5 20c.6-3.4 3.2-5.5 6.5-5.5s5.900 2.100 6.500 5.500"></path><path d="M17 15c2.300 0 4 1.500 4.500 4"></path>',
+ list:'<path d="M8 6h13M8 12h13M8 18h13"></path><path d="M3.500 6h.010M3.500 12h.010M3.500 18h.010"></path>',
+ user:'<circle cx="12" cy="8" r="4"></circle><path d="M4 21c.800-4 4-6 8-6s7.200 2 8 6"></path>',
+ filter:'<path d="M4 6h10M18 6h2M4 12h2M10 12h10M4 18h8M16 18h4"></path><circle cx="16" cy="6" r="2"></circle><circle cx="8" cy="12" r="2"></circle><circle cx="14" cy="18" r="2"></circle>',
+ close:'<path d="M6 6l12 12M18 6L6 18"></path>',
+ check:'<path d="M5 12.500l4.500 4.500L19 7"></path>',
+ skip:'<path d="M6 6l12 12M18 6L6 18"></path>',
+ plus:'<path d="M12 5v14M5 12h14"></path>',
+ send:'<path d="M5 12h14M13 6l6 6-6 6"></path>',
+ cap:'<path d="M2 9l10-5 10 5-10 5-10-5z"></path><path d="M6 11.500V16c0 1.400 2.700 3 6 3s6-1.600 6-3v-4.500"></path>'
+};
+function logo(size){return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 32 32" fill="none" aria-hidden="true"><ellipse cx="16" cy="11" rx="4.500" ry="5.500" fill="#FFC2D4"></ellipse><path d="M4 16c0 6.600 5.400 11 12 11s12-4.400 12-11" stroke="#8B7CF6" stroke-width="3.500" stroke-linecap="round"></path></svg>';}
+
+/* ---------- matching ---------- */
+function role(){return S.user?S.user.role:'builder';}
+function wanted(){
+ if(role()==='founder'){var out=[];S.myProjects.forEach(function(p){p.roles.forEach(function(r){if(out.indexOf(r)<0){out.push(r);}});});return out;}
+ return S.user?S.user.skills:[];
+}
+function tagsOf(i){return i.kind==='project'?i.roles:i.skills;}
+function scoreOf(i,want){return tagsOf(i).filter(function(t){return want.indexOf(t)>=0;}).length;}
+function source(){
+ return role()==='founder'
+  ? STUDENTS.map(function(s,n){var o=Object.assign({},s);o.kind='student';o.color=COLORS[n%COLORS.length];return o;})
+  : PROJECTS.map(function(p,n){var o=Object.assign({},p);o.kind='project';o.color=COLORS[n%COLORS.length];return o;});
+}
+function deckItems(){
+ var want=wanted(),f=S.filters;
+ var items=source().filter(function(i){return !S.decisions[i.id];});
+ if(f.skills.length){items=items.filter(function(i){return tagsOf(i).some(function(t){return f.skills.indexOf(t)>=0;});});}
+ if(f.interests.length){items=items.filter(function(i){var ints=i.kind==='project'?[i.interest]:i.interests;return ints.some(function(t){return f.interests.indexOf(t)>=0;});});}
+ items.forEach(function(i){i.score=scoreOf(i,want);});
+ return items.map(function(i,n){return {i:i,n:n};}).sort(function(a,b){return (b.i.score-a.i.score)||(a.n-b.n);}).map(function(x){return x.i;});
+}
+function findItem(id){
+ var p=PROJECTS.filter(function(x){return x.id===id;})[0];
+ if(p){var o=Object.assign({},p);o.kind='project';return o;}
+ var s=STUDENTS.filter(function(x){return x.id===id;})[0];
+ if(s){var o2=Object.assign({},s);o2.kind='student';return o2;}
+ return null;
+}
+function titleOf(i){return i.kind==='project'?i.title:i.name;}
+function subOf(i){return i.kind==='project'?(i.founder+' · '+i.major):i.major;}
+function filterCount(){return S.filters.skills.length+S.filters.interests.length;}
+
+/* ---------- pieces ---------- */
+function chips(list,sel,group){
+ return '<div class="chips">'+list.map(function(v){return '<button type="button" class="chip" data-act="toggle" data-group="'+group+'" data-val="'+esc(v)+'" aria-pressed="'+(sel.indexOf(v)>=0)+'">'+esc(v)+'</button>';}).join('')+'</div>';
+}
+function tags(list,hits){
+ return '<div class="chips">'+list.map(function(v){var hit=hits&&hits.indexOf(v)>=0;return '<span class="tag'+(hit?' hit':'')+'">'+(hit?svg(ICON.check,13):'')+esc(v)+'</span>';}).join('')+'</div>';
+}
+function field(id,label,value,placeholder){
+ return '<div class="field"><label for="'+id+'">'+label+'</label><input id="'+id+'" data-field="'+id+'" type="text" autocomplete="off" maxlength="80" value="'+esc(value||'')+'" placeholder="'+esc(placeholder||'')+'"></div>';
+}
+
+function profileForm(isEdit){
+ var d=ui.draft,r=d.role;
+ var skillLabel=r==='mentor'?'Areas you can advise on':'Your skills';
+ var h='';
+ if(isEdit){
+  h+='<div class="field"><label for="role">I am here to</label><select id="role" data-field="role">'
+   +'<option value="founder"'+(r==='founder'?' selected':'')+'>Find teammates for my idea</option>'
+   +'<option value="builder"'+(r==='builder'?' selected':'')+'>Find a startup to join</option>'
+   +'<option value="mentor"'+(r==='mentor'?' selected':'')+'>Mentor student teams</option></select></div>';
+ }
+ h+=field('name','Name',d.name,'First name');
+ h+=field('major',r==='mentor'?'Department':'Major',d.major,r==='mentor'?'e.g. Computer Science':'e.g. Business Administration');
+ h+='<div class="stack"><p class="label">'+skillLabel+'</p>'+chips(SKILLS,d.skills,'skills')+'</div>';
+ h+='<div class="stack"><p class="label">Interests</p>'+chips(INTERESTS,d.interests,'interests')+'</div>';
+ return h;
+}
+
+function renderWelcome(){
+ return '<div class="welcome">'
+  +'<div class="brand">'+logo(34)+'<span>FounderNest</span></div>'
+  +'<h1>Where ideas find their <span>teams.</span></h1>'
+  +'<p style="font-size:18px;color:var(--text)">Founders post real projects. Students bring the skills. Say yes to the ones you want to build with.</p>'
+  +'<div class="stack" style="gap:16px">'
+  +'<button type="button" class="rolebtn sun" data-act="pickRole" data-val="founder"><b>I have an idea</b><span>Find teammates for my startup</span></button>'
+  +'<button type="button" class="rolebtn aqua" data-act="pickRole" data-val="builder"><b>I have skills</b><span>Find a startup to join</span></button>'
+  +'<button type="button" class="rolebtn pink" data-act="pickRole" data-val="mentor"><b>I\'m a professor</b><span>Give student teams feedback</span></button>'
+  +'</div>'
+  +'<p class="small" style="margin-top:auto">Launching at the University at Buffalo. This demo uses sample students and projects.</p>'
+  +'</div>';
+}
+
+function renderSetup(){
+ var r=ui.draft.role;
+ var title=r==='founder'?'Tell teammates who you are':(r==='mentor'?'Set up your mentor profile':'Show what you can do');
+ return '<div class="topbar"><button type="button" class="btn slim" data-act="backToWelcome">Back</button><span class="small muted">Step 1 of '+(r==='founder'?'2':'1')+'</span></div>'
+  +'<div class="scroll"><h1 style="font-size:34px;font-weight:800">'+title+'</h1>'
+  +profileForm(false)
+  +'<button type="button" class="btn lime wide" data-act="saveProfile">'+(r==='founder'?'Next: post your project':'Create my profile')+'</button></div>';
+}
+
+function cardHTML(i,cls){
+ var want=wanted();
+ var badge=i.score>0?'<span class="tag hit">'+i.score+(i.score===1?' skill matches':' skills match')+'</span>':'';
+ var h='<article class="swipe '+cls+' bg-'+i.color+'" '+(cls==='behind'?'aria-hidden="true"':'')+'>';
+ if(i.kind==='project'){
+  h+='<div class="row between"><span class="tag">'+esc(i.interest)+'</span>'+badge+'</div>'
+   +'<h2>'+esc(i.title)+'</h2><p class="pitch">'+esc(i.pitch)+'</p>'
+   +'<div class="stack" style="gap:8px"><p class="label">Roles to fill</p>'+tags(i.roles,want)+'</div>'
+   +'<div class="who"><span class="avatar">'+esc(i.founder.charAt(0))+'</span><div><p style="font-weight:700">'+esc(i.founder)+'</p><p class="small">'+esc(i.major)+'</p></div><span class="tag demo" style="margin-left:auto">Sample</span></div>';
+ }else{
+  h+='<div class="row between"><span class="tag">'+esc(i.major)+'</span>'+badge+'</div>'
+   +'<h2>'+esc(i.name)+'</h2><p class="pitch">'+esc(i.bio)+'</p>'
+   +'<div class="stack" style="gap:8px"><p class="label">Skills</p>'+tags(i.skills,want)+'</div>'
+   +'<div class="stack" style="gap:8px"><p class="label">Interests</p>'+tags(i.interests)+'</div>'
+   +'<div class="who"><span class="avatar">'+esc(i.name.charAt(0))+'</span><p class="small">Student at UB</p><span class="tag demo" style="margin-left:auto">Sample</span></div>';
+ }
+ return h+'</article>';
+}
+
+function renderDiscover(){
+ var items=deckItems(),isF=role()==='founder',n=filterCount();
+ var h='<div class="deckhead"><div><h1 style="font-size:24px;font-weight:800">'+(isF?'Find teammates':'Find a project')+'</h1>'
+  +'<p class="small muted">'+(isF?(S.myProjects.length?'Ranked by the roles you need':'Post a project to rank by the roles you need'):'Ranked by your skills')+'</p></div>'
+  +'<button type="button" class="btn slim'+(n?' sun':'')+'" data-act="openFilters">'+svg(ICON.filter,18)+'Filters'+(n?' ('+n+')':'')+'</button></div>';
+ h+='<div class="deck">';
+ if(!items.length){
+  var skipped=source().some(function(i){return S.decisions[i.id]==='skip';});
+  h+='<div class="deckempty"><h2 style="font-size:28px;font-weight:800">'+(n?'Nothing fits those filters':'You\'ve seen everyone')+'</h2>'
+   +'<p>'+(n?'Clear the filters to see more.':(skipped?'Take a second look at the ones you skipped.':'New '+(isF?'students':'projects')+' will show up here.'))+'</p>'
+   +(n?'<button type="button" class="btn sun" data-act="clearFilters">Clear filters</button>':'')
+   +(skipped?'<button type="button" class="btn" data-act="unskip">Show skipped again</button>':'')+'</div>';
+ }else{
+  if(items[1]){h+=cardHTML(items[1],'behind');}
+  h+=cardHTML(items[0],'top');
+ }
+ h+='</div>';
+ h+='<div class="actions"><button type="button" class="btn" id="btnSkip" data-act="skip"'+(items.length?'':' disabled')+'>'+svg(ICON.skip,20)+'Skip</button>'
+  +'<button type="button" class="btn lime" id="btnIn" data-act="in"'+(items.length?'':' disabled')+'>'+svg(ICON.check,20)+(isF?'Invite':'I\'m in')+'</button></div>';
+ return h;
+}
+
+function renderMatches(){
+ var ids=Object.keys(S.decisions).filter(function(id){return S.decisions[id]==='in';});
+ var items=ids.map(findItem).filter(Boolean);
+ var yes=items.filter(function(i){return i.likesBack;}),wait=items.filter(function(i){return !i.likesBack;});
+ var h='<div class="scroll"><h1 style="font-size:30px;font-weight:800">Your team-ups</h1>';
+ if(!items.length){
+  return h+'<div class="empty stack"><p style="font-weight:700">No team-ups yet</p><p>Say yes to a '+(role()==='founder'?'student':'project')+' in Discover. When they say yes too, they show up here.</p><button type="button" class="btn lime" data-act="tab" data-val="discover">Go to Discover</button></div></div>';
+ }
+ if(yes.length){
+  h+='<div class="stack"><p class="label">You both said yes</p>'+yes.map(function(i){
+   var count=(S.messages[i.id]||[]).length;
+   return '<div class="panel lime"><div class="row between"><div><h3 style="font-size:22px">'+esc(titleOf(i))+'</h3><p class="small">'+esc(subOf(i))+'</p></div><span class="avatar">'+esc(titleOf(i).charAt(0))+'</span></div>'
+    +'<button type="button" class="btn slim" data-act="openThread" data-id="'+i.id+'">'+(count?'Open messages ('+count+')':'Say hi')+'</button></div>';
+  }).join('')+'</div>';
+ }
+ if(wait.length){
+  h+='<div class="stack"><p class="label">Waiting to hear back</p>'+wait.map(function(i){
+   return '<div class="panel"><div class="row between"><div><h3 style="font-size:20px">'+esc(titleOf(i))+'</h3><p class="small muted">'+esc(subOf(i))+'</p></div><button type="button" class="btn slim" data-act="withdraw" data-id="'+i.id+'">Withdraw</button></div></div>';
+  }).join('')+'</div>';
+ }
+ return h+'</div>';
+}
+
+function allProjects(){
+ var mine=S.myProjects.map(function(p){var o=Object.assign({},p);o.mine=true;o.founder=S.user.name;o.major=S.user.major;o.feedback=[];return o;});
+ return mine.concat(PROJECTS);
+}
+function postHTML(p){
+ var fb=(p.feedback||[]).concat(S.feedback[p.id]||[]);
+ var h='<div class="panel"><div class="row between"><span class="tag">'+esc(p.interest)+'</span>'+(p.mine?'<span class="tag hit">Your post</span>':'<span class="tag demo">Sample</span>')+'</div>'
+  +'<h3 style="font-size:24px">'+esc(p.title)+'</h3><p>'+esc(p.pitch)+'</p>'
+  +'<p class="small muted">Posted by '+esc(p.founder)+(p.major?' · '+esc(p.major):'')+'</p>'
+  +'<div class="stack" style="gap:8px"><p class="label">Roles to fill</p>'+tags(p.roles,role()==='builder'?wanted():null)+'</div>';
+ if(fb.length){
+  h+='<div class="stack" style="gap:8px"><p class="label">Mentor feedback</p>'+fb.map(function(f){return '<div class="feedback"><p class="small" style="font-weight:700;display:flex;align-items:center;gap:6px">'+svg(ICON.cap,16)+esc(f.by)+'</p><p>'+esc(f.text)+'</p></div>';}).join('')+'</div>';
+ }
+ if(role()==='mentor'){
+  h+='<div class="field"><label for="fb-'+p.id+'">Your feedback</label><textarea id="fb-'+p.id+'" data-field="fb-'+p.id+'" maxlength="400" placeholder="What should this team test or fix first?">'+esc(ui.draft['fb-'+p.id]||'')+'</textarea></div>'
+   +'<button type="button" class="btn slim pink" data-act="feedback" data-id="'+p.id+'">Post feedback</button>';
+ }
+ return h+'</div>';
+}
+function feedHTML(){
+ var q=ui.q.trim().toLowerCase();
+ var list=allProjects().filter(function(p){return !q||(p.title+' '+p.pitch+' '+p.roles.join(' ')+' '+p.interest).toLowerCase().indexOf(q)>=0;});
+ if(!list.length){return '<p class="empty">No projects match "'+esc(ui.q)+'". Try a skill, like Marketing.</p>';}
+ return list.map(postHTML).join('');
+}
+function renderProjects(){
+ var m=role()==='mentor';
+ return '<div class="scroll"><div class="row between"><h1 style="font-size:30px;font-weight:800">Projects</h1>'
+  +(m?'':'<button type="button" class="btn slim lime" data-act="openPost">'+svg(ICON.plus,18)+'Post a project</button>')+'</div>'
+  +(m?'<p class="muted">Respond to student posts with feedback. Teams see it on their project.</p>':'')
+  +'<div class="field"><label for="q">Search by name, skill or interest</label><input id="q" data-field="q" type="search" autocomplete="off" value="'+esc(ui.q)+'" placeholder="e.g. Web dev"></div>'
+  +'<div id="feed" class="stack" style="gap:16px">'+feedHTML()+'</div></div>';
+}
+
+function renderProfile(){
+ var u=S.user,r=u.role;
+ var roleLabel=r==='founder'?'Founder':(r==='mentor'?'Mentor':'Builder');
+ var h='<div class="scroll"><div class="panel '+(r==='founder'?'sun':(r==='mentor'?'pink':'aqua'))+'">'
+  +'<div class="row between"><span class="tag hit">'+roleLabel+'</span><button type="button" class="btn slim" data-act="openEdit">Edit</button></div>'
+  +'<h1 style="font-size:34px;font-weight:800">'+esc(u.name)+'</h1>'+(u.major?'<p>'+esc(u.major)+'</p>':'')
+  +'<div class="stack" style="gap:8px"><p class="label">'+(r==='mentor'?'Advises on':'Skills')+'</p>'+tags(u.skills)+'</div>'
+  +(u.interests.length?'<div class="stack" style="gap:8px"><p class="label">Interests</p>'+tags(u.interests)+'</div>':'')+'</div>';
+ if(r!=='mentor'){
+  h+='<div class="stack"><div class="row between"><p class="label">Your projects</p><button type="button" class="btn slim lime" data-act="openPost">'+svg(ICON.plus,18)+'Post a project</button></div>';
+  if(S.myProjects.length){
+   h+=S.myProjects.map(function(p){return '<div class="panel"><div class="row between"><h3 style="font-size:20px">'+esc(p.title)+'</h3><button type="button" class="btn slim" data-act="removePost" data-id="'+p.id+'">Remove</button></div>'+tags(p.roles)+'</div>';}).join('');
+  }else{
+   h+='<p class="muted">You haven\'t posted a project yet.</p>';
+  }
+  h+='</div>';
+ }
+ h+='<div class="stack"><p class="label">Plan</p>'
+  +'<div class="panel"><div class="row between"><h3 style="font-size:22px">Basic</h3><span class="tag hit">Your plan</span></div><p style="font-family:var(--display);font-weight:800;font-size:30px">Free</p><p class="muted">Profile, project posts, search and filters.</p></div>'
+  +'<div class="panel ink"><h3 style="font-size:22px;color:var(--accent-ink)">Premium</h3><p style="font-family:var(--display);font-weight:800;font-size:30px">[YOUR PRICE] <span style="font-family:var(--body);font-weight:500;font-size:16px">/ month</span></p>'
+  +'<div class="chips"><span class="tag">Advanced matching</span><span class="tag">Recruiting tools</span></div>'
+  +'<button type="button" class="btn '+(S.waitlist?'':'sun')+'" data-act="waitlist">'+(S.waitlist?svg(ICON.check,18)+'On the waitlist':'Join the Premium waitlist')+'</button></div></div>';
+ h+='<button type="button" class="btn" data-act="reset">Reset the demo</button></div>';
+ return h;
+}
+
+function renderSheet(){
+ var s=ui.sheet;if(!s){return '';}
+ var close='<button type="button" class="iconbtn" data-act="closeSheet" aria-label="Close">'+svg(ICON.close,20)+'</button>';
+ if(s.type==='matched'){
+  var it=findItem(s.id);
+  return '<div class="matched" role="dialog" aria-modal="true" aria-label="You both said yes"><h2>You both said yes.</h2>'
+   +'<div class="panel"><h3 style="font-size:26px">'+esc(titleOf(it))+'</h3><p>'+esc(subOf(it))+'</p></div>'
+   +'<p style="font-size:18px">Send a message and plan to meet on campus.</p>'
+   +'<button type="button" class="btn lime wide" data-act="openThread" data-id="'+it.id+'">Say hi</button>'
+   +'<button type="button" class="btn wide" data-act="closeSheet">Keep going</button></div>';
+ }
+ var h='<div class="scrim"><div class="sheet" role="dialog" aria-modal="true">';
+ if(s.type==='filters'){
+  h+='<div class="row between"><h2 style="font-size:26px">Filters</h2>'+close+'</div>'
+   +'<div class="stack"><p class="label">'+(role()==='founder'?'Skills they have':'Roles they need')+'</p>'+chips(SKILLS,S.filters.skills,'f_skills')+'</div>'
+   +'<div class="stack"><p class="label">Interests</p>'+chips(INTERESTS,S.filters.interests,'f_interests')+'</div>'
+   +'<div class="row"><button type="button" class="btn" data-act="clearFilters">Clear</button><button type="button" class="btn lime" style="flex:1" data-act="closeSheet">Show results</button></div>';
+ }else if(s.type==='post'){
+  var d=ui.draft;
+  h+='<div class="row between"><h2 style="font-size:26px">Post your project</h2>'+close+'</div>'
+   +field('p_title','Project name',d.p_title,'What is it called?')
+   +'<div class="field"><label for="p_pitch">What are you building?</label><textarea id="p_pitch" data-field="p_pitch" maxlength="200" placeholder="One or two sentences on the idea and who it is for.">'+esc(d.p_pitch||'')+'</textarea></div>'
+   +'<div class="field"><label for="p_interest">Category</label><select id="p_interest" data-field="p_interest">'+INTERESTS.map(function(v){return '<option'+(d.p_interest===v?' selected':'')+'>'+esc(v)+'</option>';}).join('')+'</select></div>'
+   +'<div class="stack"><p class="label">Roles you need to fill</p>'+chips(SKILLS,d.p_roles||[],'p_roles')+'</div>'
+   +'<button type="button" class="btn lime wide" data-act="savePost">Post project</button>';
+ }else if(s.type==='edit'){
+  h+='<div class="row between"><h2 style="font-size:26px">Edit profile</h2>'+close+'</div>'+profileForm(true)
+   +'<button type="button" class="btn lime wide" data-act="saveProfile">Save profile</button>';
+ }else if(s.type==='thread'){
+  var t=findItem(s.id),msgs=S.messages[s.id]||[];
+  h+='<div class="row between"><div><h2 style="font-size:26px">'+esc(titleOf(t))+'</h2><p class="small muted">'+esc(subOf(t))+'</p></div>'+close+'</div>'
+   +'<div class="stack">'+(msgs.length?msgs.map(function(m){return '<p class="bubble">'+esc(m)+'</p>';}).join(''):'<p class="muted">Introduce yourself and suggest a time to meet on campus.</p>')+'</div>'
+   +'<p class="small muted">This is a sample profile, so nobody replies in the demo.</p>'
+   +'<div class="field"><label for="msg">Message</label><textarea id="msg" data-field="msg" maxlength="300" placeholder="Hi! I saw your post and would like to help with...">'+esc(ui.draft.msg||'')+'</textarea></div>'
+   +'<button type="button" class="btn lime wide" data-act="sendMsg" data-id="'+s.id+'">'+svg(ICON.send,18)+'Send</button>';
+ }
+ return h+'</div></div>';
+}
+
+function renderApp(){
+ var m=role()==='mentor';
+ if(m&&(S.tab==='discover'||S.tab==='matches')){S.tab='projects';}
+ var tabs=m?[['projects','Projects',ICON.list],['profile','Profile',ICON.user]]
+           :[['discover','Discover',ICON.deck],['matches','Team-ups',ICON.team],['projects','Projects',ICON.list],['profile','Profile',ICON.user]];
+ var body=S.tab==='discover'?renderDiscover():S.tab==='matches'?renderMatches():S.tab==='projects'?renderProjects():renderProfile();
+ return '<header class="topbar"><div class="brand">'+logo(30)+'<span>FounderNest</span></div><span class="tag demo">Demo</span></header>'
+  +'<main style="flex:1;min-height:0;display:flex;flex-direction:column">'+body+'</main>'
+  +'<nav class="tabbar" aria-label="Sections">'+tabs.map(function(t){return '<button type="button" class="tab" data-act="tab" data-val="'+t[0]+'"'+(S.tab===t[0]?' aria-current="page"':'')+'>'+svg(t[2],22)+'<span>'+t[1]+'</span></button>';}).join('')+'</nav>'
+  +renderSheet();
+}
+
+var app=document.getElementById('app');
+var lastKey='';
+function render(){
+ var key=S.screen+'/'+S.tab;
+ var sc=app.querySelector('.scroll'),top=sc&&key===lastKey?sc.scrollTop:0;
+ app.innerHTML=S.screen==='welcome'?renderWelcome():S.screen==='setup'?renderSetup():renderApp();
+ var sc2=app.querySelector('.scroll');if(sc2&&top){sc2.scrollTop=top;}
+ lastKey=key;
+ bindDeck();
+}
+
+/* ---------- toast ---------- */
+var toastEl=document.getElementById('toast'),toastTimer=null;
+function toast(msg){toastEl.textContent=msg;toastEl.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){toastEl.classList.remove('show');},2600);}
+
+/* ---------- deck gestures ---------- */
+function hint(dx){
+ var a=document.getElementById('btnSkip'),b=document.getElementById('btnIn');
+ if(a){a.classList.toggle('hot',dx<-40);}if(b){b.classList.toggle('hot',dx>40);}
+}
+function decide(dir){
+ var item=deckItems()[0];if(!item||busy){return;}
+ busy=true;
+ var el=app.querySelector('.swipe.top');
+ function finish(){
+  busy=false;S.decisions[item.id]=dir;save();
+  if(dir==='in'){
+   if(item.likesBack){ui.sheet={type:'matched',id:item.id};}
+   else{toast('Sent. You\'ll hear back if they say yes too.');}
+  }
+  render();
+ }
+ if(el&&!reduced){
+  el.style.transition='transform .24s ease-in, opacity .24s ease-in';
+  el.style.transform='translateX('+(dir==='in'?460:-460)+'px) rotate('+(dir==='in'?16:-16)+'deg)';
+  el.style.opacity='0';
+  setTimeout(finish,250);
+ }else{finish();}
+}
+function bindDeck(){
+ var el=app.querySelector('.swipe.top');if(!el){return;}
+ var sx=0,sy=0,dx=0,drag=false,locked=false;
+ el.addEventListener('pointerdown',function(e){if(busy||e.button>0){return;}drag=true;locked=false;sx=e.clientX;sy=e.clientY;dx=0;});
+ el.addEventListener('pointermove',function(e){
+  if(!drag){return;}
+  dx=e.clientX-sx;var dy=e.clientY-sy;
+  if(!locked){
+   if(Math.abs(dx)<8&&Math.abs(dy)<8){return;}
+   if(Math.abs(dy)>Math.abs(dx)){drag=false;return;}
+   locked=true;el.style.transition='none';
+   try{el.setPointerCapture(e.pointerId);}catch(err){}
+  }
+  el.style.transform='translateX('+dx+'px) rotate('+(dx/20)+'deg)';hint(dx);
+ });
+ function end(){
+  if(!drag){return;}
+  drag=false;hint(0);
+  if(locked&&Math.abs(dx)>90){decide(dx>0?'in':'skip');}
+  else{el.style.transition='transform .2s';el.style.transform='';}
+ }
+ el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);
+}
+
+/* ---------- actions ---------- */
+function groupArr(g){
+ if(g==='f_skills'){return S.filters.skills;}
+ if(g==='f_interests'){return S.filters.interests;}
+ if(!ui.draft[g]){ui.draft[g]=[];}
+ return ui.draft[g];
+}
+function startProfileDraft(r){
+ var u=S.user;
+ ui.draft={role:r||(u?u.role:'builder'),name:u?u.name:'',major:u?u.major:'',skills:u?u.skills.slice():[],interests:u?u.interests.slice():[]};
+}
+function startPostDraft(){ui.draft={p_title:'',p_pitch:'',p_interest:INTERESTS[0],p_roles:[]};}
+
+var ACT={
+ pickRole:function(b){startProfileDraft(b.dataset.val);S.screen='setup';render();},
+ backToWelcome:function(){S.screen='welcome';render();},
+ toggle:function(b){
+  var arr=groupArr(b.dataset.group),v=b.dataset.val,at=arr.indexOf(v);
+  if(at>=0){arr.splice(at,1);}else{arr.push(v);}
+  b.setAttribute('aria-pressed',String(at<0));
+  if(b.dataset.group.charAt(0)==='f'){save();}
+ },
+ saveProfile:function(){
+  var d=ui.draft,name=(d.name||'').trim();
+  if(!name){toast('Add your name to continue.');var n=document.getElementById('name');if(n){n.focus();}return;}
+  if(!d.skills.length){toast(d.role==='mentor'?'Pick at least one area you can advise on.':'Pick at least one skill.');return;}
+  var first=S.screen==='setup';
+  S.user={role:d.role,name:name,major:(d.major||'').trim(),skills:d.skills.slice(),interests:d.interests.slice()};
+  ui.sheet=null;
+  if(first){
+   S.screen='app';S.tab=d.role==='mentor'?'projects':'discover';
+   if(d.role==='founder'){startPostDraft();ui.sheet={type:'post'};}
+  }
+  save();render();
+  if(!first){toast('Profile saved.');}
+ },
+ tab:function(b){S.tab=b.dataset.val;ui.sheet=null;save();render();},
+ skip:function(){decide('skip');},
+ 'in':function(){decide('in');},
+ openFilters:function(){ui.sheet={type:'filters'};render();},
+ clearFilters:function(){S.filters={skills:[],interests:[]};ui.sheet=null;save();render();},
+ unskip:function(){Object.keys(S.decisions).forEach(function(id){if(S.decisions[id]==='skip'){delete S.decisions[id];}});save();render();},
+ closeSheet:function(){ui.sheet=null;render();},
+ openPost:function(){startPostDraft();ui.sheet={type:'post'};render();},
+ savePost:function(){
+  var d=ui.draft,title=(d.p_title||'').trim(),pitch=(d.p_pitch||'').trim();
+  if(!title||!pitch||!d.p_roles.length){toast('Add a name, a short description and at least one role.');return;}
+  S.myProjects.unshift({id:'m'+Date.now(),title:title,pitch:pitch,interest:d.p_interest||INTERESTS[0],roles:d.p_roles.slice()});
+  ui.sheet=null;save();render();toast('Project posted.');
+ },
+ removePost:function(b){S.myProjects=S.myProjects.filter(function(p){return p.id!==b.dataset.id;});save();render();},
+ openEdit:function(){startProfileDraft();ui.sheet={type:'edit'};render();},
+ openThread:function(b){ui.draft={msg:''};ui.sheet={type:'thread',id:b.dataset.id};render();},
+ sendMsg:function(b){
+  var text=(ui.draft.msg||'').trim();if(!text){toast('Write a message first.');return;}
+  var id=b.dataset.id;if(!S.messages[id]){S.messages[id]=[];}
+  S.messages[id].push(text);ui.draft.msg='';save();render();
+  var box=document.getElementById('msg');if(box){box.focus();}
+ },
+ withdraw:function(b){delete S.decisions[b.dataset.id];save();render();},
+ feedback:function(b){
+  var id=b.dataset.id,text=(ui.draft['fb-'+id]||'').trim();
+  if(!text){toast('Write your feedback first.');return;}
+  if(!S.feedback[id]){S.feedback[id]=[];}
+  S.feedback[id].push({by:S.user.name+(S.user.major?' · '+S.user.major:' · Mentor'),text:text});
+  ui.draft['fb-'+id]='';save();render();toast('Feedback posted.');
+ },
+ waitlist:function(){S.waitlist=!S.waitlist;save();render();},
+ reset:function(){try{localStorage.removeItem(KEY);}catch(e){}S=fresh();ui={sheet:null,draft:{},q:''};render();}
+};
+
+document.addEventListener('click',function(e){
+ var b=e.target.closest?e.target.closest('[data-act]'):null;
+ if(!b||b.disabled){return;}
+ var fn=ACT[b.dataset.act];if(fn){fn(b);}
+});
+document.addEventListener('input',function(e){
+ var f=e.target.dataset?e.target.dataset.field:null;if(!f){return;}
+ if(f==='q'){ui.q=e.target.value;var feed=document.getElementById('feed');if(feed){feed.innerHTML=feedHTML();}return;}
+ ui.draft[f]=e.target.value;
+ if(f==='role'){render();}
+});
+
+render();
+})();
+</script>
+</body>
+</html>
